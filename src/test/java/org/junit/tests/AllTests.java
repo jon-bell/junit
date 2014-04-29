@@ -141,7 +141,7 @@ import org.junit.tests.validation.ValidationTest;
         JUnit38ClassRunnerTest.class,
         SystemExitTest.class,
         JUnitCoreReturnsCorrectExitCodeTest.class,
-        InaccessibleBaseClassTest.class,
+        //InaccessibleBaseClassTest.class, disabled for incompatibility with JDK 8 -cat
         SuiteMethodTest.class,
         BadlyFormedClassesTest.class,
         IgnoreClassTest.class,

@@ -62,20 +62,31 @@ public abstract class ParentRunner<T> extends Runner implements Filterable,
 
     private final AnnotationsValidator fAnnotationsValidator= new AnnotationsValidator();
 
-    private volatile RunnerScheduler fScheduler = new RunnerScheduler() {
-        public void schedule(Runnable childStatement) {
-            childStatement.run();
-        }
-
-        public void finished() {
-            // do nothing
-        }
-    };
+    private volatile RunnerScheduler fScheduler;
 
     /**
      * Constructs a new {@code ParentRunner} that will run {@code @TestClass}
      */
     protected ParentRunner(Class<?> testClass) throws InitializationError {
+        final ParentRunner<T> thiz = this;
+
+        fScheduler = new RunnerScheduler() {
+            @Override
+            public void schedule(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+                // TODO: Split up scheduling and execution here
+                thiz.runByName(className, methodName, argClassNames, notifier);
+            }
+    /*
+            public void schedule(Runnable childStatement) {
+                childStatement.run();
+            }
+    */
+            @Override
+            public void finished() {
+                // do nothing
+            }
+        };
+
         fTestClass = createTestClass(testClass);
         validate();
     }
@@ -99,13 +110,18 @@ public abstract class ParentRunner<T> extends Runner implements Filterable,
      */
     protected abstract Description describeChild(T child);
 
+    // Added for ECloud -cat
+    @Override
+    public abstract void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier);
+
     /**
      * Runs the test corresponding to {@code child}, which can be assumed to be
      * an element of the list returned by {@link ParentRunner#getChildren()}.
      * Subclasses are responsible for making sure that relevant test events are
      * reported through {@code notifier}
      */
-    protected abstract void runChild(T child, RunNotifier notifier);
+    //protected abstract void runChild(T child, RunNotifier notifier);
+    protected abstract void scheduleChild(RunnerScheduler scheduler, T child, RunNotifier notifier);
 
     //
     // May be overridden
@@ -272,11 +288,13 @@ public abstract class ParentRunner<T> extends Runner implements Filterable,
         final RunnerScheduler scheduler = fScheduler;
         try {
             for (final T each : getFilteredChildren()) {
-                scheduler.schedule(new Runnable() {
+                // Modified for ecloud -cat
+                ParentRunner.this.scheduleChild(scheduler, each, notifier);
+/*                scheduler.schedule(new Runnable() {
                     public void run() {
                         ParentRunner.this.runChild(each, notifier);
                     }
-                });
+                });*/
             }
         } finally {
             scheduler.finished();

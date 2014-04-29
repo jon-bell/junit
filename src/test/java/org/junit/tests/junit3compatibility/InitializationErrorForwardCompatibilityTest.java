@@ -3,7 +3,6 @@ package org.junit.tests.junit3compatibility;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-
 import junit.framework.AssertionFailedError;
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.TestListener;
@@ -31,6 +30,11 @@ public class InitializationErrorForwardCompatibilityTest {
 
         @Override
         public void run(RunNotifier notifier) {
+        }
+
+        @Override
+        public void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+            throw new Error("Invalid runByName context -cat");
         }
     }
 

@@ -1,6 +1,7 @@
 package org.junit.runner;
 
 import junit.runner.Version;
+import org.junit.ECloudMaster;
 import org.junit.internal.JUnitSystem;
 import org.junit.internal.RealSystem;
 import org.junit.internal.TextListener;
@@ -135,6 +136,10 @@ public class JUnitCore {
         try {
             fNotifier.fireTestRunStarted(runner.getDescription());
             runner.run(fNotifier);
+
+            // Added hook here to wait for work to actually complete -cat
+            ECloudMaster.waitForWorkAndJoin();
+            
             fNotifier.fireTestRunFinished(result);
         } finally {
             removeListener(listener);

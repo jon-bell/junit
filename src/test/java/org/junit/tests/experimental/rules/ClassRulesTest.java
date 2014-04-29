@@ -119,13 +119,14 @@ public class ClassRulesTest {
         }
 
         public Statement apply(final Statement base, final Description description) {
-            return new Statement() {
+            return null;
+/*            return new Statement() {
                 @Override
                 public void evaluate() throws Throwable {
                     orderList.add(name);
                     base.evaluate();
                 }
-            };
+            }; */
         }
     }
 
@@ -225,6 +226,7 @@ public class ClassRulesTest {
 
         private static class Dummy implements TestRule {
             public Statement apply(final Statement base, Description description) {
+                return null; /*
                 return new Statement() {
                     @Override
                     public void evaluate() throws Throwable {
@@ -232,7 +234,7 @@ public class ClassRulesTest {
                     }
 
                     ;
-                };
+                };*/
             }
         }
 

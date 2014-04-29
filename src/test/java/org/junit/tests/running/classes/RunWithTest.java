@@ -2,7 +2,6 @@ package org.junit.tests.running.classes;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
@@ -22,6 +21,11 @@ public class RunWithTest {
         @Override
         public void run(RunNotifier notifier) {
             log += "run";
+        }
+
+        @Override
+        public void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+            throw new Error("Invalid runByName context -cat");
         }
 
         @Override
@@ -66,6 +70,11 @@ public class RunWithTest {
         @Override
         public Description getDescription() {
             return null;
+        }
+
+        @Override
+        public void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+            throw new Error("Invalid runByName context -cat");
         }
 
         @Override

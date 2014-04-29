@@ -17,6 +17,7 @@ import org.junit.runner.manipulation.Sortable;
 import org.junit.runner.manipulation.Sorter;
 import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunNotifier;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
@@ -84,6 +85,11 @@ public class JUnit38ClassRunner extends Runner implements Filterable, Sortable {
         TestResult result = new TestResult();
         result.addListener(createAdaptingListener(notifier));
         getTest().run(result);
+    }
+
+    @Override
+    public void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+        throw new Error("Invalid runByName context -cat");
     }
 
     public TestListener createAdaptingListener(final RunNotifier notifier) {

@@ -1,6 +1,7 @@
 package org.junit.runner;
 
 import org.junit.runner.notification.RunNotifier;
+import org.junit.runners.ParentRunner;
 
 /**
  * A <code>Runner</code> runs tests and notifies a {@link org.junit.runner.notification.RunNotifier}
@@ -34,6 +35,9 @@ public abstract class Runner implements Describable {
      */
     public abstract void run(RunNotifier notifier);
 
+    // Added for ECloud -cat
+    public abstract void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier);
+    
     /**
      * @return the number of tests to be run by the receiver
      */

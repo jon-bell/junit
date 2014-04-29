@@ -225,6 +225,11 @@ public class ForwardCompatibilityTest extends TestCase {
         }
 
         @Override
+        public void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+            throw new Error("Invalid runByName context -cat");
+        }
+
+        @Override
         public int testCount() {
             return 0;
         }

@@ -14,6 +14,7 @@ import org.junit.runner.Runner;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
+import org.junit.runners.model.RunnerScheduler;
 
 /**
  * Using <code>Suite</code> as a runner allows you to manually
@@ -119,12 +120,23 @@ public class Suite extends ParentRunner<Runner> {
     }
 
     @Override
-    protected Description describeChild(Runner child) {
+    public Description describeChild(Runner child) {
         return child.getDescription();
     }
-
+/*
     @Override
     protected void runChild(Runner runner, final RunNotifier notifier) {
         runner.run(notifier);
+    }
+*/
+    @Override
+    protected void scheduleChild(RunnerScheduler scheduler, Runner runner, RunNotifier notifier) {
+        // For suites, go ahead and run the runner now, which should just execute the scheduler update
+        runner.run(notifier);
+    }
+
+    @Override
+    public void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+        throw new Error("Invalid runByName context -cat");
     }
 }

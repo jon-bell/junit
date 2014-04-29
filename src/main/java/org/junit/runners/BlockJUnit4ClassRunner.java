@@ -3,11 +3,13 @@ package org.junit.runners;
 import static org.junit.internal.runners.rules.RuleFieldValidator.RULE_METHOD_VALIDATOR;
 import static org.junit.internal.runners.rules.RuleFieldValidator.RULE_VALIDATOR;
 
+import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.ECloudMaster;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,6 +28,7 @@ import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.MultipleFailureException;
+import org.junit.runners.model.RunnerScheduler;
 import org.junit.runners.model.Statement;
 
 /**
@@ -67,6 +70,79 @@ public class BlockJUnit4ClassRunner extends ParentRunner<FrameworkMethod> {
     // Implementation of ParentRunner
     //
 
+    private Class<?> getPrimitiveType(String name) throws ClassNotFoundException
+    {
+        if (name.equals("byte"))
+            return byte.class;
+        if (name.equals("short"))
+            return short.class;
+        if (name.equals("int"))
+            return int.class;
+        if (name.equals("long"))
+            return long.class;
+        if (name.equals("char"))
+            return char.class;
+        if (name.equals("float"))
+            return float.class;
+        if (name.equals("double"))
+            return double.class;
+        if (name.equals("boolean"))
+            return boolean.class;
+        if (name.equals("void"))
+            return void.class;
+
+        return Class.forName(name);
+    }
+
+    // Added for ECloud -cat
+    @Override
+    public void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+        ECloudMaster master = ECloudMaster.get();
+
+        // If is master,
+        if (master != null) {
+            master.runByName(className, methodName, argClassNames, notifier);
+        } else {
+            try {
+                Class<?> act = Class.forName(className);
+                Class<?> args[] = new Class<?>[argClassNames.length];
+                for (int ii = 0; ii < argClassNames.length; ++ii) {
+                    args[ii] = getPrimitiveType(argClassNames[ii]);
+                }
+                Method method = act.getDeclaredMethod(methodName, args);
+
+                System.out.println("CAT RUNNING " + method.getName() + " from " + method.getDeclaringClass().getName());
+
+                FrameworkMethod fmeth = new FrameworkMethod(method);
+
+                Description description = describeChild(fmeth);
+
+                // Execute the test as normal
+                runLeaf(methodBlock(fmeth), description, notifier);
+            } catch (ClassNotFoundException | NoSuchMethodException | SecurityException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    protected void scheduleChild(RunnerScheduler scheduler, final FrameworkMethod method, RunNotifier notifier) {
+        if (isIgnored(method)) {
+            Description description = describeChild(method);
+            notifier.fireTestIgnored(description);
+        } else {
+            Class<?>[] argc = method.getMethod().getParameterTypes();
+            String[] args = new String[argc.length];
+            for (int ii = 0; ii < argc.length; ++ii) {
+                args[ii] = argc[ii].getName();
+            }
+
+            System.out.println("CAT SCHEDULING " + method.getName() + " from " + method.getDeclaringClass().getName());
+
+            scheduler.schedule(method.getDeclaringClass().getName(), method.getName(), args, notifier);
+        }
+    }
+/*
     @Override
     protected void runChild(final FrameworkMethod method, RunNotifier notifier) {
         Description description = describeChild(method);
@@ -76,7 +152,7 @@ public class BlockJUnit4ClassRunner extends ParentRunner<FrameworkMethod> {
             runLeaf(methodBlock(method), description, notifier);
         }
     }
-    
+*/
     /**
      * Evaluates whether {@link FrameworkMethod}s are ignored based on the
      * {@link Ignore} annotation.
@@ -87,7 +163,7 @@ public class BlockJUnit4ClassRunner extends ParentRunner<FrameworkMethod> {
     }
 
     @Override
-    protected Description describeChild(FrameworkMethod method) {
+    public Description describeChild(FrameworkMethod method) {
         Description description = fMethodDescriptions.get(method);
 
         if (description == null) {
@@ -255,7 +331,7 @@ public class BlockJUnit4ClassRunner extends ParentRunner<FrameworkMethod> {
      * This can be overridden in subclasses, either by overriding this method,
      * or the implementations creating each sub-statement.
      */
-    protected Statement methodBlock(FrameworkMethod method) {
+    public Statement methodBlock(FrameworkMethod method) {
         Object test;
         try {
             test = new ReflectiveCallable() {

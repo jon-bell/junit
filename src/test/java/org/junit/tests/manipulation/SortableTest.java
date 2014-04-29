@@ -185,6 +185,11 @@ public class SortableTest {
             }
 
             @Override
+            public void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+                throw new Error("Invalid runByName context -cat");
+            }
+
+            @Override
             public void run(RunNotifier notifier) {
             }
         }

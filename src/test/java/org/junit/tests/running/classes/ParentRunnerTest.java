@@ -41,14 +41,22 @@ public class ParentRunnerTest {
     @Test
     public void useChildHarvester() throws InitializationError {
         log = "";
-        ParentRunner<?> runner = new BlockJUnit4ClassRunner(FruitTest.class);
+        final ParentRunner<?> runner = new BlockJUnit4ClassRunner(FruitTest.class);
         runner.setScheduler(new RunnerScheduler() {
+            @Override
+            public void schedule(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+                // TODO: Split up scheduling and execution here
+                log += "before ";
+                runner.runByName(className, methodName, argClassNames, notifier);
+                log += "after ";
+            }
+            /*
             public void schedule(Runnable childStatement) {
                 log += "before ";
                 childStatement.run();
                 log += "after ";
             }
-
+*/
             public void finished() {
                 log += "afterAll ";
             }

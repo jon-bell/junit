@@ -56,6 +56,11 @@ public class JUnit4ClassRunner extends Runner implements Filterable, Sortable {
         }).runProtected();
     }
 
+    @Override
+    public void runByName(String className, String methodName, String []argClassNames, RunNotifier notifier) {
+        throw new Error("Invalid runByName context -cat");
+    }
+
     protected void runMethods(final RunNotifier notifier) {
         for (Method method : fTestMethods) {
             invokeTestMethod(method, notifier);
